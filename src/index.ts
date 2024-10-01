@@ -1,31 +1,20 @@
-const { Builder, By, until } = require('selenium-webdriver');
-const fs = require('fs');
+//const { Builder, By, until } = require('selenium-webdriver');
+import { Builder, By, ThenableWebDriver, until } from 'selenium-webdriver';
+import * as fs from 'fs';
+import { CookiesService } from './cookies/cookies.service'; 
+import { AuthService } from './auth/auth.service';
 
-async function loadCookies(driver) {
-    try {
-        // Чтение cookies из файла
-        const cookies = JSON.parse(fs.readFileSync('cookies.json', 'utf-8'));
-
-        // Добавление cookies в браузер
-        for (let cookie of cookies) {
-            await driver.manage().addCookie(cookie);
-        }
-
-        console.log('Cookies загружены');
-    } catch (error) {
-        console.error('Ошибка при загрузке cookies:', error);
-    }
-}
 
 async function automateRequisites() {
-    let driver = new Builder().forBrowser('chrome').build();
+    let authService = new AuthService;
+    let cookiesService = new CookiesService(authService);
+    let driver: ThenableWebDriver = new Builder().forBrowser('chrome').build();
 
     try {
-        // Переход на нужную страницу
         await driver.get('https://cumback.ru/manager/requisites');
 
         // Загружаем cookies
-        await loadCookies(driver);
+        await cookiesService.load(driver);
 
         // Обновляем страницу после загрузки cookies
         await driver.navigate().refresh();
@@ -76,8 +65,8 @@ async function automateRequisites() {
         // Ждем 15 секунд, чтобы запрос успел обработаться
         await driver.sleep(15000);
 
-    } catch (error) {
-        console.error('Ошибка при выполнении скрипта:', error);
+    } catch (e) {
+        throw new Error(e);
     } finally {
         await driver.quit();
     }
