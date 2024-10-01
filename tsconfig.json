@@ -3,6 +3,7 @@
     "compilerOptions": {
       "module": "commonjs",
       "declaration": true,
+      "esModuleInterop": true,  // Разрешаем использование ECMAScript модулей
       "removeComments": true,
       "emitDecoratorMetadata": true,
       "experimentalDecorators": true,
